@@ -1,28 +1,39 @@
-var mongoose = require('mongoose');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser: true });
+var { mongoose } = require('./db/mongoose');
+var { Todo } = require('./models/todo');
+var { User } = require('./models/user');
 
-var Todo = mongoose.model('Todo', {
-    text: {
-        type: String
-    },
-    completed: {
-        type: Boolean
-    },
-    completedAt: {
-        type: Number
-    }
+
+var app = express();
+
+app.use(bodyParser.json());
+
+app.post('/todos', (req, res) => {
+    console.log(req.body);
+    var myTodo = new Todo({
+        text: req.body.text
+    });
+
+    myTodo.save().then((result) => {
+        res.send(result).status(200);
+    }, (e) => {
+        res.status(400).send(e);
+    });
+
 });
 
-var newTodo = new Todo({
-    text: 'Fix the laptop',
-    completed: true,
-    completedAt: 1283749
+app.get('/todos', (req, res) => {
+    Todo.find().then((docs) => {
+        res.send({ todos: docs });
+    }).catch((e) => {
+        res.status(400).send(e);
+    });
 });
 
-newTodo.save().then((doc) => {
-    console.log('Saved the todo', JSON.stringify(doc, undefined, 2));
-}, (err) => {
-    console.log("Unable to add ToDo", err);
+app.listen('3000', () => {
+    console.log('Server started successfully on port 3000');
 });
+
+module.exports = { app };
