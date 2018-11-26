@@ -1,3 +1,5 @@
+const config = require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,7 +11,7 @@ var { User } = require('./models/user');
 
 
 var app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -89,7 +91,6 @@ app.patch('/todos/:id', (req, res) => {
     }
 
     var updatedTodo = _.pick(req.body, ['text', 'completed']);
-    console.log(updatedTodo);
 
     if(_.isBoolean(updatedTodo.completed) && updatedTodo.completed) {
         updatedTodo.completedAt = new Date().getTime();
@@ -106,7 +107,7 @@ app.patch('/todos/:id', (req, res) => {
     }).catch((e) => {
         return res.status(400).send({});
     });
-    
+
 });
 
 
