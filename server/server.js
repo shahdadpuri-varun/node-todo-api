@@ -72,7 +72,7 @@ app.delete('/todos/:id', (req, res) => {
     }
 
     Todo.findByIdAndDelete(id).then((todo) => {
-        if(!todo){
+        if (!todo) {
             return res.status(404).send();
         }
         res.status(200).send({ todo });
@@ -80,7 +80,7 @@ app.delete('/todos/:id', (req, res) => {
         // console.log(e.message);
         return res.status(400).send({});
     });
-    
+
 });
 
 app.patch('/todos/:id', (req, res) => {
@@ -92,15 +92,15 @@ app.patch('/todos/:id', (req, res) => {
 
     var updatedTodo = _.pick(req.body, ['text', 'completed']);
 
-    if(_.isBoolean(updatedTodo.completed) && updatedTodo.completed) {
+    if (_.isBoolean(updatedTodo.completed) && updatedTodo.completed) {
         updatedTodo.completedAt = new Date().getTime();
     } else {
         updatedTodo.completed = false;
         updatedTodo.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, {$set : updatedTodo }, {new : true}).then((todo) => {
-        if(!todo){
+    Todo.findByIdAndUpdate(id, { $set: updatedTodo }, { new: true }).then((todo) => {
+        if (!todo) {
             return res.status(404).send();
         }
         res.status(200).send({ todo });
@@ -108,6 +108,20 @@ app.patch('/todos/:id', (req, res) => {
         return res.status(400).send({});
     });
 
+});
+
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+
+    user.save().then(() => {
+       return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((e) => {
+        console.log(e);
+        res.status(400).send(e);
+    });
 });
 
 
